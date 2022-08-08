@@ -1,0 +1,96 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DbtTransformation\Tests;
+
+use Generator;
+use NoCodeDbtTransformation\Config;
+use NoCodeDbtTransformation\ConfigDefinition;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+
+class ConfigTest extends TestCase
+{
+    /**
+     * @param array<string, mixed> $configData
+     * @dataProvider validConfigsData
+     */
+    public function testValidConfig(array $configData): void
+    {
+        $config = new Config($configData, new ConfigDefinition());
+        $this->assertEquals($configData, $config->getData());
+    }
+
+    /**
+     * @param array<string, mixed> $configData
+     * @dataProvider invalidConfigsData
+     */
+    public function testInvalidConfigs(array $configData, string $expectedError): void
+    {
+        try {
+            new Config($configData, new ConfigDefinition());
+            $this->fail('Validation should produce error');
+        } catch (InvalidConfigurationException $e) {
+            $this->assertStringContainsString($expectedError, $e->getMessage());
+        }
+    }
+
+    /**
+     * @return Generator<string, array<string, mixed>>
+     */
+    public function validConfigsData(): Generator
+    {
+        yield 'config with one model' => [
+            'configData' => [
+                'parameters' => [
+                    'models' => ['SELECT * FROM table1;'],
+                ],
+            ],
+        ];
+
+        yield 'config with two models' => [
+            'configData' => [
+                'parameters' => [
+                    'models' => ['SELECT * FROM table1;', 'SELECT 1 FROM table2;'],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return Generator<string, array<string, mixed>>
+     */
+    public function invalidConfigsData(): Generator
+    {
+        yield 'empty config' => [
+            'configData' => [],
+            'expectedError' => 'The child config "parameters" under "root" must be configured.',
+        ];
+
+        yield 'empty parameters' => [
+            'configData' => [
+                'parameters' => [],
+            ],
+            'expectedError' => 'The child config "models" under "root.parameters" must be configured.',
+        ];
+
+        yield 'empty models node' => [
+            'configData' => [
+                'parameters' => [
+                    'models' => [],
+                ],
+            ],
+            'expectedError' => 'The path "root.parameters.models" should have at least 1 element(s) defined.',
+        ];
+
+        yield 'empty model' => [
+            'configData' => [
+                'parameters' => [
+                    'models' => [''],
+                ],
+            ],
+            'expectedError' => 'The path "root.parameters.models.0" cannot contain an empty value, but got "".',
+        ];
+    }
+}

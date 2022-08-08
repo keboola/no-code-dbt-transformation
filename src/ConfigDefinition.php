@@ -15,9 +15,13 @@ class ConfigDefinition extends BaseConfigDefinition
         // @formatter:off
         /** @noinspection NullPointerExceptionInspection */
         $parametersNode
+            ->isRequired()
             ->children()
-                ->scalarNode('foo')
-                    ->defaultValue('baz')
+                ->arrayNode('models')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                    ->prototype('scalar')
+                        ->cannotBeEmpty()
                 ->end()
             ->end()
         ;
