@@ -1,6 +1,4 @@
-# my-component
-
-[![Build Status](https://travis-ci.com/keboola/my-component.svg?branch=master)](https://travis-ci.com/keboola/my-component)
+# no-code-dbt-transformation
 
 > Fill in description
 
@@ -13,8 +11,8 @@
 Clone this repository and init the workspace with following command:
 
 ```
-git clone https://github.com/keboola/my-component
-cd my-component
+git clone https://github.com/keboola/no-code-dbt-transformation
+cd no-code-dbt-transformation
 docker-compose build
 docker-compose run --rm dev composer install --no-scripts
 ```
