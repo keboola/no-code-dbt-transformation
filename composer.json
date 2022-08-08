@@ -1,5 +1,5 @@
 {
-    "name": "keboola/my-component",
+    "name": "keboola/no-code-dbt-transformation",
     "description": "MyComponent description",
     "license": "MIT",
     "require": {
@@ -17,13 +17,13 @@
     },
     "autoload": {
         "psr-4": {
-            "MyComponent\\": "src/"
+            "NoCodeDbtTransformation\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "MyComponent\\Tests\\": "tests/phpunit/",
-            "MyComponent\\FunctionalTests\\": "tests/functional/"
+            "NoCodeDbtTransformation\\Tests\\": "tests/phpunit/",
+            "NoCodeDbtTransformation\\FunctionalTests\\": "tests/functional/"
         }
     },
     "scripts": {
@@ -51,6 +51,9 @@
     },
     "config": {
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": false
+        }
     }
 }
