@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DbtTransformation\Tests;
+namespace NoCodeDbtTransformation\Tests;
 
 use Generator;
 use NoCodeDbtTransformation\Config;
