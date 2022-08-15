@@ -10,6 +10,19 @@ env:
     KBC_DEVELOPERPORTAL_PASSWORD: '${{ secrets.KBC_DEVELOPERPORTAL_PASSWORD }}'
     DOCKERHUB_USER: '${{ secrets.DOCKERHUB_USER }}'
     DOCKERHUB_TOKEN: '${{ secrets.DOCKERHUB_TOKEN }}'
+
+    # Snowflake Credentials
+    SNOWFLAKE_HOST: "keboola.snowflakecomputing.com"
+    SNOWFLAKE_PORT: 443
+    SNOWFLAKE_WAREHOUSE: "KEBOOLA_PROD_SMALL"
+    SNOWFLAKE_DATABASE: "SAPI_9342"
+    SNOWFLAKE_SCHEMA: "WORKSPACE_890127584"
+    SNOWFLAKE_USER: "SAPI_WORKSPACE_890127584"
+    SNOWFLAKE_PASSWORD: '${{ secrets.SNOWFLAKE_PASSWORD }}'
+
+    KBC_URL: "https://connection.keboola.com"
+    KBC_TOKEN: '${{ secrets.KBC_TOKEN }}'
+
     KBC_STORAGE_TOKEN: '${{ secrets.KBC_STORAGE_TOKEN }}'
     KBC_TEST_PROJECT_URL: ''
     KBC_TEST_PROJECT_CONFIGS: ''
@@ -73,7 +86,18 @@ jobs:
                     tag_as_latest: true
             -
                 name: 'Run tests'
-                run: 'docker run ${{env.APP_IMAGE}} composer ci'
+                run: |
+                    docker run \
+                    -e SNOWFLAKE_HOST \
+                    -e SNOWFLAKE_PORT \
+                    -e SNOWFLAKE_WAREHOUSE \
+                    -e SNOWFLAKE_DATABASE \
+                    -e SNOWFLAKE_SCHEMA \
+                    -e SNOWFLAKE_USER \
+                    -e SNOWFLAKE_PASSWORD \
+                    -e KBC_URL \
+                    -e KBC_TOKEN \
+                    ${{env.APP_IMAGE}} composer ci
     tests-in-kbc:
         needs: build
         runs-on: ubuntu-latest
