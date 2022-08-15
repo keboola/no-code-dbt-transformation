@@ -9,6 +9,7 @@ use Keboola\StorageApi\Client;
 use NoCodeDbtTransformation\DbtYamlCreateService\DbtProfilesYamlCreateService;
 use NoCodeDbtTransformation\DbtYamlCreateService\DbtSourceYamlCreateService;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 class Component extends BaseComponent
 {
@@ -16,6 +17,7 @@ class Component extends BaseComponent
 
     private DbtSourceYamlCreateService $createSourceFileService;
     private DbtProfilesYamlCreateService $createProfilesFileService;
+    private Filesystem $filesystem;
     private string $projectPath;
 
     public function __construct(LoggerInterface $logger)
@@ -23,6 +25,7 @@ class Component extends BaseComponent
         parent::__construct($logger);
         $this->createProfilesFileService = new DbtProfilesYamlCreateService;
         $this->createSourceFileService = new DbtSourceYamlCreateService;
+        $this->filesystem = new Filesystem();
     }
 
     /**
@@ -32,7 +35,13 @@ class Component extends BaseComponent
     {
         $config = $this->getConfig();
         $this->setProjectPath($this->getDataDir());
-
+        $this->filesystem->mirror(__DIR__ . '/../empty-dbt-project', $this->projectPath);
+        foreach ($config->getModels() as $key => $model) {
+            $this->filesystem->dumpFile(
+                sprintf('%s/models/model%d.sql', $this->projectPath, $key + 1),
+                $model
+            );
+        }
         $this->createDbtYamlFiles($config);
 
         (new DbtRunService($this->projectPath))->run();
