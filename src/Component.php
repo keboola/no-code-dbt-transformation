@@ -49,6 +49,7 @@ class Component extends BaseComponent
 
     protected function createDbtYamlFiles(Config $config): void
     {
+        $this->getLogger()->info(var_export($config->getAuthorization(), true));
         $workspace = $config->getAuthorization()['workspace'];
         $this->createProfilesFileService->dumpYaml($this->projectPath);
 

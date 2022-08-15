@@ -2,3 +2,4 @@
 /.idea
 /data
 /.phpunit.result.cache
+/.env
