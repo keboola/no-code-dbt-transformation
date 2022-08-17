@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace NoCodeDbtTransformation;
 
 use Keboola\Component\BaseComponent;
+use Keboola\SnowflakeDbAdapter\Connection;
 use Keboola\StorageApi\Client;
 use NoCodeDbtTransformation\DbtYamlCreateService\DbtProfilesYamlCreateService;
 use NoCodeDbtTransformation\DbtYamlCreateService\DbtSourceYamlCreateService;
@@ -13,7 +14,10 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class Component extends BaseComponent
 {
-    public const STRING_TO_REMOVE_FROM_HOST = '.snowflakecomputing.com';
+    private const STRING_TO_REMOVE_FROM_HOST = '.snowflakecomputing.com';
+    private const ACTION_PREVIEW = 'preview';
+    private const STRING_MAX_LENGTH = 16000;
+    private const PREVIEW_ROWS_LIMIT = 1000;
 
     private DbtSourceYamlCreateService $createSourceFileService;
     private DbtProfilesYamlCreateService $createProfilesFileService;
@@ -33,18 +37,29 @@ class Component extends BaseComponent
      */
     protected function run(): void
     {
-        $config = $this->getConfig();
-        $this->setProjectPath($this->getDataDir());
-        $this->filesystem->mirror(__DIR__ . '/../empty-dbt-project', $this->projectPath);
-        foreach ($config->getModels() as $key => $model) {
-            $this->filesystem->dumpFile(
-                sprintf('%s/models/model%d.sql', $this->projectPath, $key + 1),
-                $model
-            );
-        }
-        $this->createDbtYamlFiles($config);
+        $this->doTransformation();
+    }
 
-        (new DbtRunService($this->projectPath))->run();
+    /**
+     * @return array{
+     *     'columns': array<int, string>,
+     *     'rows': array<int, array<int, array{'columnName': string, 'value': string, 'isTruncated': bool}>>
+     * }
+     * @throws \Keboola\SnowflakeDbAdapter\Exception\SnowflakeDbAdapterException|\Keboola\Component\UserException
+     */
+    public function preview(): array
+    {
+        $this->doTransformation(true);
+
+        $config = $this->getConfig();
+        $workspace = $config->getAuthorization()['workspace'];
+
+        $connection = new Connection($workspace);
+        $tableName = sprintf('model%s', count($config->getModels()));
+        $columns = $connection->getTableColumns($workspace['schema'], $tableName);
+        $rows = $connection->fetchAll(sprintf('SELECT * FROM "%s"."%s";', $workspace['schema'], $tableName));
+
+        return ['columns' => $columns, 'rows' => $this->formatDataForPreview($rows)];
     }
 
     protected function createDbtYamlFiles(Config $config): void
@@ -102,5 +117,64 @@ class Component extends BaseComponent
     protected function getConfigDefinitionClass(): string
     {
         return ConfigDefinition::class;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function getSyncActions(): array
+    {
+        return [
+            self::ACTION_PREVIEW => 'preview',
+        ];
+    }
+
+    /**
+     * @throws \Keboola\Component\UserException
+     */
+    protected function doTransformation(bool $onlyPreview = false): void
+    {
+        $config = $this->getConfig();
+        $this->setProjectPath($this->getDataDir());
+        $this->filesystem->mirror(__DIR__ . '/../empty-dbt-project', $this->projectPath);
+        foreach ($config->getModels() as $key => $model) {
+            $limit = $onlyPreview && $key === 0;
+            $this->filesystem->dumpFile(
+                sprintf('%s/models/model%d.sql', $this->projectPath, $key + 1),
+                $limit ? sprintf('%s LIMIT %d', $model, self::PREVIEW_ROWS_LIMIT) : $model
+            );
+        }
+        $this->createDbtYamlFiles($config);
+
+        (new DbtRunService($this->projectPath))->run();
+    }
+
+    /**
+     * @param array<int, array<string, string|int|bool|float>> $rows
+     * @return array<int, array<int, array{'columnName': string, 'value': string, 'isTruncated': bool}>>
+     */
+    protected function formatDataForPreview(array $rows): array
+    {
+        $data = [];
+
+        foreach ($rows as $key => $row) {
+            foreach ($row as $columnName => $value) {
+                if (mb_strlen((string) $value) > self::STRING_MAX_LENGTH) {
+                    $truncated = true;
+                    $value = mb_substr((string) $value, 0, self::STRING_MAX_LENGTH);
+                } else {
+                    $truncated = false;
+                    $value = (string) $value;
+                }
+
+                $data[$key][] = [
+                    'columnName' => $columnName,
+                    'value' => $value,
+                    'isTruncated' => $truncated,
+                ];
+            }
+        }
+
+        return $data;
     }
 }
