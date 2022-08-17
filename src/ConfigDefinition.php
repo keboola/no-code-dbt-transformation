@@ -23,8 +23,22 @@ class ConfigDefinition extends BaseConfigDefinition
                     ->prototype('scalar')
                         ->cannotBeEmpty()
                 ->end()
-            ->end()
-        ;
+            ->end();
+
+        // only for UI for saving form state
+        $parametersNode
+            ->children()
+                ->arrayNode('tables')
+                    ->ignoreExtraKeys()
+                ->end()
+            ->end();
+
+        $parametersNode
+            ->children()
+                ->arrayNode('operations')
+                    ->ignoreExtraKeys()
+                ->end()
+            ->end();
         // @formatter:on
         return $parametersNode;
     }
