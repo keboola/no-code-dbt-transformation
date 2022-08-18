@@ -55,7 +55,7 @@ class Component extends BaseComponent
         $workspace = $config->getAuthorization()['workspace'];
 
         $connection = new Connection($workspace);
-        $tableName = sprintf('model%s', count($config->getModels()));
+        $tableName = 'model_last';
         $columns = $connection->getTableColumns($workspace['schema'], $tableName);
         $rows = $connection->fetchAll(sprintf('SELECT * FROM "%s"."%s";', $workspace['schema'], $tableName));
 
@@ -137,10 +137,13 @@ class Component extends BaseComponent
         $config = $this->getConfig();
         $this->setProjectPath($this->getDataDir());
         $this->filesystem->mirror(__DIR__ . '/../empty-dbt-project', $this->projectPath);
+        $modelsCount = count($config->getModels());
         foreach ($config->getModels() as $key => $model) {
             $limit = $onlyPreview && $key === 0;
+            $isLast = $key + 1 === $modelsCount;
+
             $this->filesystem->dumpFile(
-                sprintf('%s/models/model%d.sql', $this->projectPath, $key + 1),
+                sprintf('%s/models/model%s.sql', $this->projectPath, $isLast ? '_last' : $key + 1),
                 $limit ? sprintf('%s LIMIT %d', $model, self::PREVIEW_ROWS_LIMIT) : $model
             );
         }
