@@ -7,7 +7,7 @@ namespace NoCodeDbtTransformation;
 use Keboola\Component\Config\BaseConfigDefinition;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
-class ConfigDefinition extends BaseConfigDefinition
+class ActionConfigDefinition extends BaseConfigDefinition
 {
     protected function getParametersDefinition(): ArrayNodeDefinition
     {
@@ -26,30 +26,16 @@ class ConfigDefinition extends BaseConfigDefinition
             ->end()
                 ->arrayNode('authorization')
                     ->children()
-                        ->scalarNode('host')->end()
-                        ->scalarNode('warehouse')->end()
-                        ->scalarNode('database')->end()
-                        ->scalarNode('schema')->end()
-                        ->scalarNode('user')->end()
-                        ->scalarNode('#password')->end()
+                        ->scalarNode('host')->isRequired()->cannotBeEmpty()->end()
+                        ->scalarNode('warehouse')->isRequired()->cannotBeEmpty()->end()
+                        ->scalarNode('database')->isRequired()->cannotBeEmpty()->end()
+                        ->scalarNode('schema')->isRequired()->cannotBeEmpty()->end()
+                        ->scalarNode('user')->isRequired()->cannotBeEmpty()->end()
+                        ->scalarNode('#password')->isRequired()->cannotBeEmpty()->end()
                     ->end()
                 ->end()
             ->end();
 
-        // only for UI for saving form state
-        $parametersNode
-            ->children()
-                ->arrayNode('tables')
-                    ->ignoreExtraKeys()
-                ->end()
-            ->end();
-
-        $parametersNode
-            ->children()
-                ->arrayNode('operations')
-                    ->ignoreExtraKeys()
-                ->end()
-            ->end();
         // @formatter:on
         return $parametersNode;
     }
