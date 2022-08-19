@@ -52,7 +52,7 @@ class Component extends BaseComponent
         $this->doTransformation(true);
 
         $config = $this->getConfig();
-        $workspace = $config->getAuthorization()['workspace'];
+        $workspace = $config->getCredentials();
 
         $connection = new Connection($workspace);
         $tableName = 'model_last';
@@ -64,7 +64,7 @@ class Component extends BaseComponent
 
     protected function createDbtYamlFiles(Config $config): void
     {
-        $workspace = $config->getAuthorization()['workspace'];
+        $workspace = $config->getAuthorization() ? $config->getAuthorization()['workspace'] : $config->getCredentials();
         $this->createProfilesFileService->dumpYaml($this->projectPath);
 
         $this->setEnvVars($workspace);
@@ -116,7 +116,8 @@ class Component extends BaseComponent
 
     protected function getConfigDefinitionClass(): string
     {
-        return ConfigDefinition::class;
+        $action = $this->getRawConfig()['action'] ?? 'run';
+        return $action === 'run' ? ConfigDefinition::class : ActionConfigDefinition::class;
     }
 
     /**

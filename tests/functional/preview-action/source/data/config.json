@@ -1,14 +1,4 @@
 {
-  "authorization": {
-    "workspace": {
-      "host": "%env(string:SNOWFLAKE_HOST)%",
-      "warehouse": "%env(string:SNOWFLAKE_WAREHOUSE)%",
-      "database": "%env(string:SNOWFLAKE_DATABASE)%",
-      "schema": "%env(string:SNOWFLAKE_SCHEMA)%",
-      "user": "%env(string:SNOWFLAKE_USER)%",
-      "password": "%env(string:SNOWFLAKE_PASSWORD)%"
-    }
-  },
   "action": "preview",
   "parameters": {
     "models": [
@@ -16,6 +6,14 @@
       "SELECT {{ dbt_utils.star(from=ref('model1'), except=[\"language\"]) }}, REPLACE(\"language\", 'en-us', 'EN') as \"language\" FROM {{ ref('model1') }}",
       "SELECT * FROM {{ ref('model2') }} WHERE \"deviceCategory\" = 'desktop'",
       "SELECT count(\"id\") as \"count\" FROM {{ ref('model3') }} GROUP BY \"city\""
-    ]
+    ],
+    "authorization": {
+        "host": "%env(string:SNOWFLAKE_HOST)%",
+        "warehouse": "%env(string:SNOWFLAKE_WAREHOUSE)%",
+        "database": "%env(string:SNOWFLAKE_DATABASE)%",
+        "schema": "%env(string:SNOWFLAKE_SCHEMA)%",
+        "user": "%env(string:SNOWFLAKE_USER)%",
+        "password": "%env(string:SNOWFLAKE_PASSWORD)%"
+    }
   }
 }

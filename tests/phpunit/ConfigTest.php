@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace NoCodeDbtTransformation\Tests;
 
 use Generator;
+use NoCodeDbtTransformation\ActionConfigDefinition;
 use NoCodeDbtTransformation\Config;
 use NoCodeDbtTransformation\ConfigDefinition;
 use PHPUnit\Framework\TestCase;
@@ -19,6 +20,16 @@ class ConfigTest extends TestCase
     public function testValidConfig(array $configData): void
     {
         $config = new Config($configData, new ConfigDefinition());
+        $this->assertEquals($configData, $config->getData());
+    }
+
+    /**
+     * @param array<string, mixed> $configData
+     * @dataProvider validActionConfigsData
+     */
+    public function testValidActionConfig(array $configData): void
+    {
+        $config = new Config($configData, new ActionConfigDefinition());
         $this->assertEquals($configData, $config->getData());
     }
 
@@ -53,6 +64,44 @@ class ConfigTest extends TestCase
             'configData' => [
                 'parameters' => [
                     'models' => ['SELECT * FROM table1;', 'SELECT 1 FROM table2;'],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return Generator<string, array<string, mixed>>
+     */
+    public function validActionConfigsData(): Generator
+    {
+        yield 'config with one model' => [
+            'configData' => [
+                'parameters' => [
+                    'models' => ['SELECT * FROM table1;'],
+                ],
+                'authorization' => [
+                    'host' => 'kebooladev.snowflake.com',
+                    'warehouse' => 'KEBOOLA_PROD',
+                    'database' => 'KEBOOLA_PROD',
+                    'schema' => 'KEBOOLA_PROD',
+                    'user' => 'KEBOOLA_PROD_1111',
+                    'password' => 'password',
+                ],
+            ],
+        ];
+
+        yield 'config with two models' => [
+            'configData' => [
+                'parameters' => [
+                    'models' => ['SELECT * FROM table1;', 'SELECT 1 FROM table2;'],
+                ],
+                'authorization' => [
+                    'host' => 'kebooladev.snowflake.com',
+                    'warehouse' => 'KEBOOLA_PROD',
+                    'database' => 'KEBOOLA_PROD',
+                    'schema' => 'KEBOOLA_PROD',
+                    'user' => 'KEBOOLA_PROD_1111',
+                    'password' => 'password',
                 ],
             ],
         ];

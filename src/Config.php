@@ -17,6 +17,14 @@ class Config extends BaseConfig
         return $this->getArrayValue(['parameters', 'models']);
     }
 
+    /**
+     * @return array<string, string>
+     */
+    public function getCredentials(): array
+    {
+        return $this->getArrayValue(['parameters', 'authorization']);
+    }
+
     public function getStorageApiToken(): string
     {
         $token = getenv('KBC_TOKEN');
