@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace NoCodeDbtTransformation;
 
+use JetBrains\PhpStorm\ArrayShape;
 use Keboola\Component\BaseComponent;
 use Keboola\SnowflakeDbAdapter\Connection;
 use Keboola\StorageApi\Client;
@@ -18,6 +19,7 @@ class Component extends BaseComponent
     private const ACTION_PREVIEW = 'preview';
     private const STRING_MAX_LENGTH = 16000;
     private const PREVIEW_ROWS_LIMIT = 1000;
+    private const MODEL_LAST = 'model_last';
 
     private DbtSourceYamlCreateService $createSourceFileService;
     private DbtProfilesYamlCreateService $createProfilesFileService;
@@ -55,9 +57,12 @@ class Component extends BaseComponent
         $workspace = $config->getCredentials();
 
         $connection = new Connection($workspace);
-        $tableName = 'model_last';
-        $columns = $connection->getTableColumns($workspace['schema'], $tableName);
-        $rows = $connection->fetchAll(sprintf('SELECT * FROM "%s"."%s";', $workspace['schema'], $tableName));
+        $columns = $connection->getTableColumns($workspace['schema'], self::MODEL_LAST);
+        $rows = $connection->fetchAll(sprintf(
+            'SELECT * FROM "%s"."%s";',
+            $workspace['schema'],
+            self::MODEL_LAST
+        ));
 
         return ['columns' => $columns, 'rows' => $this->formatDataForPreview($rows)];
     }
@@ -138,16 +143,22 @@ class Component extends BaseComponent
         $config = $this->getConfig();
         $this->setProjectPath($this->getDataDir());
         $this->filesystem->mirror(__DIR__ . '/../empty-dbt-project', $this->projectPath);
-        $modelsCount = count($config->getModels());
+
         foreach ($config->getModels() as $key => $model) {
             $limit = $onlyPreview && $key === 0;
-            $isLast = $key + 1 === $modelsCount;
-
             $this->filesystem->dumpFile(
-                sprintf('%s/models/model%s.sql', $this->projectPath, $isLast ? '_last' : $key + 1),
+                sprintf('%s/models/model%s.sql', $this->projectPath, $key + 1),
                 $limit ? sprintf('%s LIMIT %d', $model, self::PREVIEW_ROWS_LIMIT) : $model
             );
         }
+
+        $modelsCount = count($config->getModels());
+        $this->filesystem->dumpFile(
+            sprintf('%s/models/%s.sql', $this->projectPath, self::MODEL_LAST),
+            sprintf('SELECT {{ dbt_utils.star(from=ref(\'model%d\'), except=["_timestamp"]) }} ' .
+                'FROM {{ ref(\'model%d\') }}', $modelsCount, $modelsCount)
+        );
+
         $this->createDbtYamlFiles($config);
 
         (new DbtRunService($this->projectPath))->run();
