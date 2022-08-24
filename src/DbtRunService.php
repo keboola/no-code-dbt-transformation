@@ -76,6 +76,9 @@ class DbtRunService
         $errors = [];
         foreach (reset($messages) as $messageJson) {
             $message = json_decode($messageJson, true);
+            if ($message === null) {
+                return $output;
+            }
             if (is_array($message) && $message['level'] === 'error') {
                 $errors[] = $message['msg'];
             }
