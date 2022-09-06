@@ -146,6 +146,7 @@ class Component extends BaseComponent
 
         foreach ($config->getModels() as $key => $model) {
             $limit = $onlyPreview && $key === 0;
+            $model = str_replace('%model%', sprintf('model%d', $key), $model);
             $this->filesystem->dumpFile(
                 sprintf('%s/models/model%s.sql', $this->projectPath, $key + 1),
                 $limit ? sprintf('%s LIMIT %d', $model, self::PREVIEW_ROWS_LIMIT) : $model
