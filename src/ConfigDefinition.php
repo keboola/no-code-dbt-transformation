@@ -23,17 +23,6 @@ class ConfigDefinition extends BaseConfigDefinition
                     ->prototype('scalar')
                         ->cannotBeEmpty()
                 ->end()
-            ->end()
-                ->arrayNode('authorization')
-                    ->children()
-                        ->scalarNode('host')->end()
-                        ->scalarNode('warehouse')->end()
-                        ->scalarNode('database')->end()
-                        ->scalarNode('schema')->end()
-                        ->scalarNode('user')->end()
-                        ->scalarNode('#password')->end()
-                    ->end()
-                ->end()
             ->end();
 
         // only for UI for saving form state
