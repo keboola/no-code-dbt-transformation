@@ -17,6 +17,12 @@ class ActionConfigDefinition extends BaseConfigDefinition
         $parametersNode
             ->isRequired()
             ->children()
+                ->scalarNode('tableName')->cannotBeEmpty()->end()
+            ->end()
+            ->children()
+                ->scalarNode('bucketId')->cannotBeEmpty()->end()
+            ->end()
+            ->children()
                 ->arrayNode('models')
                     ->isRequired()
                     ->cannotBeEmpty()
