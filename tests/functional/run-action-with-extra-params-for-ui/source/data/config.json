@@ -13,8 +13,9 @@
     "tables": {
       "in.c-Google_Insights.audience_overview": "in.c-Google_Insights.audience_overview"
     },
+    "tableName": "audience_overview",
+    "bucketId": "in.c-Google_Insights",
     "models": [
-      "SELECT * FROM {{ source('in.c-Google_Insights', 'audience_overview') }}",
       "SELECT {{ dbt_utils.star(from=ref('%model%'), except=[\"language\"]) }}, REPLACE(\"language\", 'en-us', 'EN') as \"language\" FROM {{ ref('%model%') }}",
       "SELECT * FROM {{ ref('%model%') }} WHERE \"deviceCategory\" = 'desktop'",
       "SELECT count(\"id\") as \"count\" FROM {{ ref('%model%') }} GROUP BY \"city\""

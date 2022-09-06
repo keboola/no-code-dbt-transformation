@@ -144,21 +144,19 @@ class Component extends BaseComponent
         $this->setProjectPath($this->getDataDir());
         $this->filesystem->mirror(__DIR__ . '/../empty-dbt-project', $this->projectPath);
 
-        foreach ($config->getModels() as $key => $model) {
+        $models = $config->getModels();
+        $models = $this->prependInputMappingModel($models);
+
+        $modelsCount = count($models);
+        foreach ($models as $key => $model) {
             $limit = $onlyPreview && $key === 0;
+            $last = $modelsCount === $key + 1;
             $model = str_replace('%model%', sprintf('model%d', $key), $model);
             $this->filesystem->dumpFile(
-                sprintf('%s/models/model%s.sql', $this->projectPath, $key + 1),
+                sprintf('%s/models/model%s.sql', $this->projectPath, $last ? '_last' : $key + 1),
                 $limit ? sprintf('%s LIMIT %d', $model, self::PREVIEW_ROWS_LIMIT) : $model
             );
         }
-
-        $modelsCount = count($config->getModels());
-        $this->filesystem->dumpFile(
-            sprintf('%s/models/%s.sql', $this->projectPath, self::MODEL_LAST),
-            sprintf('SELECT {{ dbt_utils.star(from=ref(\'model%d\'), except=["_timestamp"]) }} ' .
-                'FROM {{ ref(\'model%d\') }}', $modelsCount, $modelsCount)
-        );
 
         $this->createDbtYamlFiles($config);
 
@@ -192,5 +190,29 @@ class Component extends BaseComponent
         }
 
         return $data;
+    }
+
+    /**
+     * @param array<int, string> $models
+     * @return array<int, string>
+     */
+    protected function prependInputMappingModel(array $models): array
+    {
+        $config = $this->getConfig();
+        if ($config->getTableName() && $config->getBucketId()) {
+            array_unshift(
+                $models,
+                sprintf(
+                    'SELECT {{ dbt_utils.star(from=source(\'%s\', \'%s\'), except=["_timestamp"]) }} ' .
+                    'FROM {{ source(\'%s\', \'%s\') }}',
+                    $config->getBucketId(),
+                    $config->getTableName(),
+                    $config->getBucketId(),
+                    $config->getTableName()
+                )
+            );
+        }
+
+        return $models;
     }
 }
