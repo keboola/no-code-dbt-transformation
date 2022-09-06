@@ -4,11 +4,30 @@ declare(strict_types=1);
 
 namespace NoCodeDbtTransformation;
 
+use InvalidArgumentException;
 use Keboola\Component\Config\BaseConfig;
 use RuntimeException;
 
 class Config extends BaseConfig
 {
+    public function getTableName(): ?string
+    {
+        try {
+            return $this->getStringValue(['parameters', 'tableName']);
+        } catch (InvalidArgumentException) {
+            return null;
+        }
+    }
+
+    public function getBucketId(): ?string
+    {
+        try {
+            return $this->getStringValue(['parameters', 'bucketId']);
+        } catch (InvalidArgumentException) {
+            return null;
+        }
+    }
+
     /**
      * @return array<int, string>
      */
