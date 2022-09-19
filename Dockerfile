@@ -85,6 +85,8 @@ RUN composer install $COMPOSER_FLAGS --no-scripts --no-autoloader
 # Copy rest of the app
 COPY . /code/
 
+RUN (cd empty-dbt-project;dbt deps)
+
 # Run normal composer - all deps are cached already
 RUN composer install $COMPOSER_FLAGS
 
