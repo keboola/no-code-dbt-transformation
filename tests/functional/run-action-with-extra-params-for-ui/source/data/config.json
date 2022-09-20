@@ -16,41 +16,29 @@
     "tableName": "audience_overview",
     "bucketId": "in.c-Google_Insights",
     "models": [
-      "SELECT {{ dbt_utils.star(from=ref('%model%'), except=[\"language\"]) }}, REPLACE(\"language\", 'en-us', 'EN') as \"language\" FROM {{ ref('%model%') }}",
-      "SELECT * FROM {{ ref('%model%') }} WHERE \"deviceCategory\" = 'desktop'",
-      "SELECT count(\"id\") as \"count\" FROM {{ ref('%model%') }} GROUP BY \"city\""
-    ],
-    "operations": [
       {
-        "id": "cleanAndFormat",
-        "name": "Clean and Format Data",
-        "icon": "arrows-rotate",
-        "category": "Clean & Format",
-        "code": "{{=<% %>=}}\n          SELECT {{ dbt_utils.star(from=ref(<% previousSource %>), except=[\"<% columnName %>\"]) }}, REPLACE(\"<% columnName %>\", '<% searchValue %>', '<% newValue %>') as \"<% columnName %>\" FROM {{ ref(<% previousSource %>) }}",
-        "inputs": {
-          "columnName": {
-            "id": "columnName",
-            "name": "Column Name",
-            "type": "string"
-          },
-          "searchValue": {
-            "id": "searchValue",
-            "name": "Search Value",
-            "type": "string"
-          },
-          "newValue": {
-            "id": "newValue",
-            "name": "New Value",
-            "type": "string"
-          }
-        },
+        "id": "12abc",
+        "templateId": "selectOneColumn",
         "variables": {
-          "columnName": "Name2",
-          "searchValue": "dolor",
-          "newValue": "sit",
-          "previousSource": "'in.c-Google_Insights', 'audience_overview'"
+          "columnName": "cars"
         },
-        "index": 0
+        "code": "SELECT {{ dbt_utils.star(from=ref('%model%'), except=[\"language\"]) }}, REPLACE(\"language\", 'en-us', 'EN') as \"language\" FROM {{ ref('%model%') }}"
+      },
+      {
+        "id": "12abc",
+        "templateId": "selectOneColumn",
+        "variables": {
+          "columnName": "cars"
+        },
+        "code": "SELECT * FROM {{ ref('%model%') }} WHERE \"deviceCategory\" = 'desktop'"
+      },
+      {
+        "id": "12abc",
+        "templateId": "selectOneColumn",
+        "variables": {
+          "columnName": "cars"
+        },
+        "code": "SELECT count(\"id\") as \"count\" FROM {{ ref('%model%') }} GROUP BY \"city\""
       }
     ],
     "authorization": {

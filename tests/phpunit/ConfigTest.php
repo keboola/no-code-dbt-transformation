@@ -57,7 +57,9 @@ class ConfigTest extends TestCase
                 'parameters' => [
                     'tableName' => 'tableName',
                     'bucketId' => 'bucketId',
-                    'models' => ['SELECT * FROM table1;'],
+                    'models' => [
+                            ['code' => 'SELECT * FROM table1;'],
+                    ],
                 ],
             ],
         ];
@@ -65,7 +67,9 @@ class ConfigTest extends TestCase
         yield 'config with one model' => [
             'configData' => [
                 'parameters' => [
-                    'models' => ['SELECT * FROM table1;'],
+                    'models' => [
+                        ['code' => 'SELECT * FROM table1;'],
+                    ],
                 ],
             ],
         ];
@@ -73,15 +77,18 @@ class ConfigTest extends TestCase
         yield 'config with two models' => [
             'configData' => [
                 'parameters' => [
-                    'models' => ['SELECT * FROM table1;', 'SELECT 1 FROM table2;'],
-                ],
-                'authorization' => [
-                    'host' => 'kebooladev.snowflake.com',
-                    'warehouse' => 'KEBOOLA_PROD',
-                    'database' => 'KEBOOLA_PROD',
-                    'schema' => 'KEBOOLA_PROD',
-                    'user' => 'KEBOOLA_PROD_1111',
-                    '#password' => 'password',
+                    'models' => [
+                        ['code' => 'SELECT * FROM table1;'],
+                        ['code' => 'SELECT * FROM table2;'],
+                    ],
+                    'authorization' => [
+                        'host' => 'kebooladev.snowflake.com',
+                        'warehouse' => 'KEBOOLA_PROD',
+                        'database' => 'KEBOOLA_PROD',
+                        'schema' => 'KEBOOLA_PROD',
+                        'user' => 'KEBOOLA_PROD_1111',
+                        '#password' => 'password',
+                    ],
                 ],
             ],
         ];
@@ -97,15 +104,17 @@ class ConfigTest extends TestCase
                 'parameters' => [
                     'tableName' => 'tableName',
                     'bucketId' => 'bucketId',
-                    'models' => ['SELECT * FROM table1;'],
-                ],
-                'authorization' => [
-                    'host' => 'kebooladev.snowflake.com',
-                    'warehouse' => 'KEBOOLA_PROD',
-                    'database' => 'KEBOOLA_PROD',
-                    'schema' => 'KEBOOLA_PROD',
-                    'user' => 'KEBOOLA_PROD_1111',
-                    '#password' => 'password',
+                    'models' => [
+                        ['code' => 'SELECT * FROM table1;'],
+                    ],
+                    'authorization' => [
+                        'host' => 'kebooladev.snowflake.com',
+                        'warehouse' => 'KEBOOLA_PROD',
+                        'database' => 'KEBOOLA_PROD',
+                        'schema' => 'KEBOOLA_PROD',
+                        'user' => 'KEBOOLA_PROD_1111',
+                        '#password' => 'password',
+                    ],
                 ],
             ],
         ];
@@ -113,15 +122,17 @@ class ConfigTest extends TestCase
         yield 'config with one model' => [
             'configData' => [
                 'parameters' => [
-                    'models' => ['SELECT * FROM table1;'],
-                ],
-                'authorization' => [
-                    'host' => 'kebooladev.snowflake.com',
-                    'warehouse' => 'KEBOOLA_PROD',
-                    'database' => 'KEBOOLA_PROD',
-                    'schema' => 'KEBOOLA_PROD',
-                    'user' => 'KEBOOLA_PROD_1111',
-                    '#password' => 'password',
+                    'models' => [
+                        ['code' => 'SELECT * FROM table1;',],
+                    ],
+                    'authorization' => [
+                        'host' => 'kebooladev.snowflake.com',
+                        'warehouse' => 'KEBOOLA_PROD',
+                        'database' => 'KEBOOLA_PROD',
+                        'schema' => 'KEBOOLA_PROD',
+                        'user' => 'KEBOOLA_PROD_1111',
+                        '#password' => 'password',
+                    ],
                 ],
             ],
         ];
@@ -129,15 +140,18 @@ class ConfigTest extends TestCase
         yield 'config with two models' => [
             'configData' => [
                 'parameters' => [
-                    'models' => ['SELECT * FROM table1;', 'SELECT 1 FROM table2;'],
-                ],
-                'authorization' => [
-                    'host' => 'kebooladev.snowflake.com',
-                    'warehouse' => 'KEBOOLA_PROD',
-                    'database' => 'KEBOOLA_PROD',
-                    'schema' => 'KEBOOLA_PROD',
-                    'user' => 'KEBOOLA_PROD_1111',
-                    '#password' => 'password',
+                    'models' => [
+                        ['code' => 'SELECT * FROM table1;'],
+                        ['code' => 'SELECT * FROM table2;'],
+                    ],
+                    'authorization' => [
+                        'host' => 'kebooladev.snowflake.com',
+                        'warehouse' => 'KEBOOLA_PROD',
+                        'database' => 'KEBOOLA_PROD',
+                        'schema' => 'KEBOOLA_PROD',
+                        'user' => 'KEBOOLA_PROD_1111',
+                        '#password' => 'password',
+                    ],
                 ],
             ],
         ];
@@ -169,20 +183,20 @@ class ConfigTest extends TestCase
             'expectedError' => 'The path "root.parameters.models" should have at least 1 element(s) defined.',
         ];
 
-        yield 'empty model' => [
+        yield 'empty model code' => [
             'configData' => [
                 'parameters' => [
-                    'models' => [''],
+                    'models' => [['code' => '']],
                 ],
             ],
-            'expectedError' => 'The path "root.parameters.models.0" cannot contain an empty value, but got "".',
+            'expectedError' => 'The path "root.parameters.models.0.code" cannot contain an empty value, but got "".',
         ];
 
         yield 'empty table name' => [
             'configData' => [
                 'parameters' => [
                     'tableName' => '',
-                    'models' => ['SELECT * FROM table1;', 'SELECT 1 FROM table2;'],
+                    'models' => [['code' => 'SELECT * FROM table1;']],
                 ],
             ],
             'expectedError' => 'The path "root.parameters.tableName" cannot contain an empty value, but got "".',
