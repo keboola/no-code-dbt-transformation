@@ -48,6 +48,11 @@ class Config extends BaseConfig
         return $credentials;
     }
 
+    public function shouldReturnAllResults(): bool
+    {
+        return (bool) $this->getValue(['parameters', 'returnAllResults']);
+    }
+
     public function getStorageApiToken(): string
     {
         $token = getenv('KBC_TOKEN');

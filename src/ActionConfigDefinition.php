@@ -19,6 +19,7 @@ class ActionConfigDefinition extends BaseConfigDefinition
             ->children()
                 ->scalarNode('tableName')->cannotBeEmpty()->end()
                 ->scalarNode('bucketId')->cannotBeEmpty()->end()
+                ->booleanNode('returnAllResults')->defaultFalse()->end()
                 ->arrayNode('models')
                     ->isRequired()
                     ->cannotBeEmpty()

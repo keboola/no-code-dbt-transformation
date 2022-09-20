@@ -104,6 +104,7 @@ class ConfigTest extends TestCase
                 'parameters' => [
                     'tableName' => 'tableName',
                     'bucketId' => 'bucketId',
+                    'returnAllResults' => true,
                     'models' => [
                         ['code' => 'SELECT * FROM table1;'],
                     ],
@@ -125,6 +126,7 @@ class ConfigTest extends TestCase
                     'models' => [
                         ['code' => 'SELECT * FROM table1;',],
                     ],
+                    'returnAllResults' => true,
                     'authorization' => [
                         'host' => 'kebooladev.snowflake.com',
                         'warehouse' => 'KEBOOLA_PROD',
@@ -140,6 +142,7 @@ class ConfigTest extends TestCase
         yield 'config with two models' => [
             'configData' => [
                 'parameters' => [
+                    'returnAllResults' => false,
                     'models' => [
                         ['code' => 'SELECT * FROM table1;'],
                         ['code' => 'SELECT * FROM table2;'],

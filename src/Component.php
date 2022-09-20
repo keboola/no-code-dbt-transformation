@@ -45,7 +45,10 @@ class Component extends BaseComponent
      * @return array{
      *     'columns': array<int, string>,
      *     'rows': array<int, array<int, array{'columnName': string, 'value': string, 'isTruncated': bool}>>
-     * }
+     * }|array<int, array{
+     *     'columns': array<int, string>,
+     *     'rows': array<int, array<int, array{'columnName': string, 'value': string, 'isTruncated': bool}>>
+     * }>
      * @throws \Keboola\SnowflakeDbAdapter\Exception\SnowflakeDbAdapterException|\Keboola\Component\UserException
      */
     public function preview(): array
@@ -54,16 +57,18 @@ class Component extends BaseComponent
 
         $config = $this->getConfig();
         $workspace = $config->getCredentials();
+        if ($config->shouldReturnAllResults()) {
+            $results = [];
+            foreach ($config->getModels() as $key => $model) {
+                $modelName = sprintf('model%d', $key + 1);
+                $results[] = $this->getResult($workspace, $modelName);
+            }
+            $results[] = $this->getResult($workspace, self::MODEL_LAST);
+        } else {
+            return $this->getResult($workspace, self::MODEL_LAST);
+        }
 
-        $connection = new Connection($workspace);
-        $columns = $connection->getTableColumns($workspace['schema'], self::MODEL_LAST);
-        $rows = $connection->fetchAll(sprintf(
-            'SELECT * FROM "%s"."%s";',
-            $workspace['schema'],
-            self::MODEL_LAST
-        ));
-
-        return ['columns' => $columns, 'rows' => $this->formatDataForPreview($rows)];
+        return $results;
     }
 
     protected function createDbtYamlFiles(Config $config): void
@@ -213,5 +218,26 @@ class Component extends BaseComponent
         }
 
         return $models;
+    }
+
+    /**
+     * @param array<string, string> $workspace
+     * @return array{
+     *     'columns': array<int, string>,
+     *     'rows': array<int, array<int, array{'columnName': string, 'value': string, 'isTruncated': bool}>>
+     * }
+     * @throws \Keboola\SnowflakeDbAdapter\Exception\SnowflakeDbAdapterException
+     */
+    protected function getResult(array $workspace, string $modelName): array
+    {
+        $connection = new Connection($workspace);
+        $columns = $connection->getTableColumns($workspace['schema'], $modelName);
+        $rows = $connection->fetchAll(sprintf(
+            'SELECT * FROM "%s"."%s";',
+            $workspace['schema'],
+            $modelName
+        ));
+
+        return ['columns' => $columns, 'rows' => $this->formatDataForPreview($rows)];
     }
 }
