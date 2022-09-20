@@ -33,7 +33,7 @@ class Config extends BaseConfig
      */
     public function getModels(): array
     {
-        return $this->getArrayValue(['parameters', 'models']);
+        return array_column($this->getArrayValue(['parameters', 'models']), 'code');
     }
 
     /**

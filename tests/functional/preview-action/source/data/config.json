@@ -4,9 +4,9 @@
     "tableName": "audience_overview",
     "bucketId": "in.c-Google_Insights",
     "models": [
-      "SELECT {{ dbt_utils.star(from=ref('%model%'), except=[\"language\"]) }}, REPLACE(\"language\", 'en-us', 'EN') as \"language\" FROM {{ ref('%model%') }}",
-      "SELECT * FROM {{ ref('%model%') }} WHERE \"deviceCategory\" = 'desktop'",
-      "SELECT count(\"id\") as \"count\" FROM {{ ref('%model%') }} GROUP BY \"city\""
+      {"code": "SELECT {{ dbt_utils.star(from=ref('%model%'), except=[\"language\"]) }}, REPLACE(\"language\", 'en-us', 'EN') as \"language\" FROM {{ ref('%model%') }}"},
+      {"code": "SELECT * FROM {{ ref('%model%') }} WHERE \"deviceCategory\" = 'desktop'"},
+      {"code": "SELECT count(\"id\") as \"count\" FROM {{ ref('%model%') }} GROUP BY \"city\""}
     ],
     "authorization": {
         "host": "%env(string:SNOWFLAKE_HOST)%",
