@@ -18,16 +18,18 @@ class ConfigDefinition extends BaseConfigDefinition
             ->isRequired()
             ->children()
                 ->scalarNode('tableName')->cannotBeEmpty()->end()
-            ->end()
-            ->children()
                 ->scalarNode('bucketId')->cannotBeEmpty()->end()
-            ->end()
-            ->children()
                 ->arrayNode('models')
                     ->isRequired()
                     ->cannotBeEmpty()
-                    ->prototype('scalar')
-                        ->cannotBeEmpty()
+                    ->arrayPrototype()
+                        ->ignoreExtraKeys()
+                        ->children()
+                            ->scalarNode('code')
+                            ->isRequired()
+                            ->cannotBeEmpty()
+                        ->end()
+                    ->end()
                 ->end()
             ->end()
                 ->arrayNode('authorization')
@@ -46,13 +48,6 @@ class ConfigDefinition extends BaseConfigDefinition
         $parametersNode
             ->children()
                 ->arrayNode('tables')
-                    ->ignoreExtraKeys()
-                ->end()
-            ->end();
-
-        $parametersNode
-            ->children()
-                ->arrayNode('operations')
                     ->ignoreExtraKeys()
                 ->end()
             ->end();
