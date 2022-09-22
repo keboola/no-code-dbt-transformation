@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace NoCodeDbtTransformation;
 
-use JetBrains\PhpStorm\ArrayShape;
 use Keboola\Component\BaseComponent;
 use Keboola\SnowflakeDbAdapter\Connection;
 use Keboola\StorageApi\Client;
