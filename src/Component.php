@@ -57,15 +57,16 @@ class Component extends BaseComponent
 
         $config = $this->getConfig();
         $workspace = $config->getCredentials();
+        $connection = new Connection($workspace);
         if ($config->shouldReturnAllResults()) {
             $results = [];
             foreach ($config->getModels() as $key => $model) {
                 $modelName = sprintf('model%d', $key + 1);
-                $results[] = $this->getResult($workspace, $modelName);
+                $results[] = $this->getResult($connection, $workspace, $modelName);
             }
-            $results[] = $this->getResult($workspace, self::MODEL_LAST);
+            $results[] = $this->getResult($connection, $workspace, self::MODEL_LAST);
         } else {
-            return $this->getResult($workspace, self::MODEL_LAST);
+            return $this->getResult($connection, $workspace, self::MODEL_LAST);
         }
 
         return $results;
@@ -226,11 +227,9 @@ class Component extends BaseComponent
      *     'columns': array<int, string>,
      *     'rows': array<int, array<int, array{'columnName': string, 'value': string, 'isTruncated': bool}>>
      * }
-     * @throws \Keboola\SnowflakeDbAdapter\Exception\SnowflakeDbAdapterException
      */
-    protected function getResult(array $workspace, string $modelName): array
+    protected function getResult(Connection $connection, array $workspace, string $modelName): array
     {
-        $connection = new Connection($workspace);
         $columns = $connection->getTableColumns($workspace['schema'], $modelName);
         $rows = $connection->fetchAll(sprintf(
             'SELECT * FROM "%s"."%s";',
