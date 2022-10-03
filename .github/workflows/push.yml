@@ -4,9 +4,9 @@ name: 'GitHub Actions'
 concurrency: 'ci-${{ github.ref }}'
 env:
     APP_IMAGE: keboola/no-code-dbt-transformation
-    KBC_DEVELOPERPORTAL_VENDOR: keboola-test
-    KBC_DEVELOPERPORTAL_APP: keboola-test.no-code-dbt-transformation
-    KBC_DEVELOPERPORTAL_USERNAME: keboola-test+no_code_dbt_transformation_gha
+    KBC_DEVELOPERPORTAL_VENDOR: keboola
+    KBC_DEVELOPERPORTAL_APP: keboola.no-code-dbt-transformation
+    KBC_DEVELOPERPORTAL_USERNAME: keboola+no_code_dbt_transformation_gha
     KBC_DEVELOPERPORTAL_PASSWORD: '${{ secrets.KBC_DEVELOPERPORTAL_PASSWORD }}'
     DOCKERHUB_USER: '${{ secrets.DOCKERHUB_USER }}'
     DOCKERHUB_TOKEN: '${{ secrets.DOCKERHUB_TOKEN }}'
