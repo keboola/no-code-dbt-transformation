@@ -78,8 +78,9 @@ class DbtRunService
             if ($message === null) {
                 return $output;
             }
-            if (is_array($message) && $message['level'] === 'error') {
-                $errors[] = $message['msg'];
+            /** @var array<string, array<string, string>> $message */
+            if (isset($message['info']['level']) && $message['info']['level'] === 'error') {
+                $errors[] = $message['info']['msg'];
             }
         }
 
