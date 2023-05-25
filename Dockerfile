@@ -1,4 +1,4 @@
-FROM php:8-cli
+FROM php:8.1-cli
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG DEBIAN_FRONTEND=noninteractive
@@ -80,7 +80,7 @@ RUN composer install $COMPOSER_FLAGS --no-scripts --no-autoloader
 # Copy rest of the app
 COPY . /code/
 
-RUN (cd empty-dbt-project;dbt deps)
+RUN (cd empty-dbt-project;dbt deps --profiles-dir .)
 
 # Run normal composer - all deps are cached already
 RUN composer install $COMPOSER_FLAGS
