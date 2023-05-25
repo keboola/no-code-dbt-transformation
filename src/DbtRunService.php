@@ -10,6 +10,7 @@ use Symfony\Component\Process\Process;
 
 class DbtRunService
 {
+    private const DBT_PROCESS_TIMEOUT = 5 * 60; // 5 minutes
 
     private string $projectPath;
 
@@ -26,7 +27,7 @@ class DbtRunService
     {
         try {
             $command = $this->prepareCommand($this->getSelectParameter($modelNames), $target);
-            $process = new Process($command, $this->projectPath, getenv());
+            $process = new Process($command, $this->projectPath, getenv(), null, self::DBT_PROCESS_TIMEOUT);
             $process->mustRun();
             return $process->getOutput();
         } catch (ProcessFailedException $e) {
