@@ -1,7 +1,13 @@
 version: '3'
 services:
-  dev:
+  dev: &dev
     build: .
+    image: keboola/no-code-dbt-transformation
     volumes:
       - ./:/code
       - ./data:/data
+  dev-xdebug:
+    <<: *dev
+    build:
+      context: ./docker/xdebug
+    image: keboola/no-code-dbt-transformation-xdebug
