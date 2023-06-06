@@ -169,29 +169,27 @@ class Component extends BaseComponent
     }
 
     /**
-     * @param array<int, array<string, string|int|bool|float>> $rows
-     * @return array<int, array<int, array{'columnName': string, 'value': string, 'isTruncated': bool}>>
+     * @param array<string, string|int|bool|float> $row
+     * @return array<int, array{columnName: string, value: string, isTruncated: bool}>
      */
-    protected function formatDataForPreview(array $rows): array
+    protected function formatDataForPreview(array $row): array
     {
         $data = [];
 
-        foreach ($rows as $key => $row) {
-            foreach ($row as $columnName => $value) {
-                if (mb_strlen((string) $value) > self::STRING_MAX_LENGTH) {
-                    $truncated = true;
-                    $value = mb_substr((string) $value, 0, self::STRING_MAX_LENGTH);
-                } else {
-                    $truncated = false;
-                    $value = (string) $value;
-                }
-
-                $data[$key][] = [
-                    'columnName' => $columnName,
-                    'value' => $value,
-                    'isTruncated' => $truncated,
-                ];
+        foreach ($row as $columnName => $value) {
+            if (mb_strlen((string) $value) > self::STRING_MAX_LENGTH) {
+                $truncated = true;
+                $value = mb_substr((string) $value, 0, self::STRING_MAX_LENGTH);
+            } else {
+                $truncated = false;
+                $value = (string) $value;
             }
+
+            $data[] = [
+                'columnName' => $columnName,
+                'value' => $value,
+                'isTruncated' => $truncated,
+            ];
         }
 
         return $data;
@@ -231,12 +229,18 @@ class Component extends BaseComponent
     protected function getResult(Connection $connection, array $workspace, string $modelName): array
     {
         $columns = $connection->getTableColumns($workspace['schema'], $modelName);
-        $rows = $connection->fetchAll(sprintf(
+        $rows = [];
+
+        $sql = sprintf(
             'SELECT * FROM "%s"."%s";',
             $workspace['schema'],
             $modelName
-        ));
+        );
 
-        return ['columns' => $columns, 'rows' => $this->formatDataForPreview($rows)];
+        $connection->fetch($sql, [], function ($row) use (&$rows): void {
+            $rows[] = $this->formatDataForPreview($row);
+        });
+
+        return ['columns' => $columns, 'rows' => $rows];
     }
 }
