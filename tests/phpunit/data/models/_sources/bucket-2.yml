@@ -19,8 +19,19 @@ sources:
                             - unique
                             - not_null
             -
-                name: table3
+                name: tableWithCompoundPrimaryKey
                 quoting:
                     database: true
                     schema: true
                     identifier: true
+                columns:
+                    -
+                        name: id
+                        tests:
+                            - unique
+                            - not_null
+                    -
+                        name: vatId
+                        tests:
+                            - unique
+                            - not_null

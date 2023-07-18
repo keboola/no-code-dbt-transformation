@@ -25,7 +25,7 @@ class DbtYamlCreateTest extends TestCase
     public function testCreateProfileYaml(): void
     {
         $service = new DbtProfilesYamlCreateService();
-        $service->dumpYaml($this->dataDir);
+        $service->dumpYaml($this->dataDir, []);
 
         self::assertFileEquals(
             sprintf('%s/expectedProfiles.yml', $this->providerDataDir),
@@ -38,11 +38,14 @@ class DbtYamlCreateTest extends TestCase
         $service = new DbtSourceYamlCreateService();
 
         $tablesData = [
-            'bucket-1' => [['name' => 'table1', 'primaryKey' => ['id']]],
-            'bucket-2' => [
+            'bucket-1' => ['tables' => [['name' => 'table1', 'primaryKey' => ['id']]]],
+            'bucket-2' => ['tables' => [
                 ['name' => 'table2', 'primaryKey' => ['vatId']],
-                ['name' => 'table3', 'primaryKey' => []],
-            ],
+                ['name' => 'tableWithCompoundPrimaryKey', 'primaryKey' => ['id', 'vatId']],
+            ]],
+            'linked-bucket' => ['tables' => [
+                ['name' => 'linkedTable', 'primaryKey' => []],
+            ], 'projectId' => '9090'],
         ];
 
         $service->dumpYaml(
