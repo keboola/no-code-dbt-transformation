@@ -8,9 +8,16 @@ use Symfony\Component\Yaml\Yaml;
 
 class DbtProfilesYamlCreateService extends DbtYamlCreateService
 {
-    public function dumpYaml(string $projectPath): void
+    /**
+     * @param array<int, int> $projectIds
+     */
+    public function dumpYaml(string $projectPath, array $projectIds): void
     {
         $outputs['kbc_prod'] = $this->getOutputDefinition('KBC_PROD');
+        foreach ($projectIds as $projectId) {
+            $configurationName = sprintf('kbc_prod_%d', $projectId);
+            $outputs[$configurationName] = self::getOutputDefinition(strtoupper($configurationName));
+        }
 
         $this->filesystem->dumpFile(
             sprintf('%s/profiles.yml', $projectPath),

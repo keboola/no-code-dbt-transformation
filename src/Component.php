@@ -74,30 +74,42 @@ class Component extends BaseComponent
 
     protected function createDbtYamlFiles(Config $config): void
     {
-        $workspace = $config->getAuthorization() ? $config->getAuthorization()['workspace'] : $config->getCredentials();
-        $this->createProfilesFileService->dumpYaml($this->projectPath);
-
-        $this->setEnvVars($workspace);
-
         $client = new Client(['url' => $config->getStorageApiUrl(), 'token' => $config->getStorageApiToken()]);
-        $tables = $client->listTables();
         $tablesData = [];
-        foreach ($tables as $table) {
-            $tablesData[(string) $table['bucket']['id']][] = $table;
+        $projectIds = [];
+        foreach ($client->listBuckets() as $bucket) {
+            $tables = $client->listTables($bucket['id']);
+            foreach ($tables as $table) {
+                $tablesData[(string) $bucket['id']]['tables'][] = $table;
+                if (isset($bucket['sourceBucket']['project']['id'])) {
+                    $sourceProjectId = (int) $bucket['sourceBucket']['project']['id'];
+                    $projectIds[$sourceProjectId] = $sourceProjectId;
+                    $tablesData[(string) $bucket['id']]['projectId'] = $sourceProjectId;
+                }
+            }
         }
 
         $this->createSourceFileService->dumpYaml(
             $this->projectPath,
             $tablesData
         );
+        $this->createProfilesFileService->dumpYaml($this->projectPath, $projectIds);
+
+        $workspace = $config->getAuthorization() ? $config->getAuthorization()['workspace'] : $config->getCredentials();
+        $this->setEnvVars($workspace, $projectIds);
     }
 
     /**
      * @param array<string, string> $workspace
+     * @param array<int, int> $projectIds
      */
-    private function setEnvVars(array $workspace): void
+    private function setEnvVars(array $workspace, array $projectIds): void
     {
         putenv(sprintf('DBT_KBC_PROD_DATABASE=%s', $workspace['database']));
+        foreach ($projectIds as $projectId) {
+            $stackPrefix = strtok($workspace['database'], '_');
+            putenv(sprintf('DBT_KBC_PROD_%d_DATABASE=%s_%d', $projectId, $stackPrefix, $projectId));
+        }
         putenv(sprintf('DBT_KBC_PROD_SCHEMA=%s', $workspace['schema']));
         putenv(sprintf('DBT_KBC_PROD_WAREHOUSE=%s', $workspace['warehouse']));
         $account = str_replace(self::STRING_TO_REMOVE_FROM_HOST, '', $workspace['host']);

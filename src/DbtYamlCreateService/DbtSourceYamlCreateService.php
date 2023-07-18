@@ -10,7 +10,7 @@ use Symfony\Component\Yaml\Yaml;
 class DbtSourceYamlCreateService extends DbtYamlCreateService
 {
     /**
-     * @param array<string, array<int, array<string, mixed>>> $tablesData
+     * @param array<string, array{projectId?: mixed, tables: array<int, mixed>}> $tablesData
      */
     public function dumpYaml(string $projectPath, array $tablesData): void
     {
@@ -25,10 +25,12 @@ class DbtSourceYamlCreateService extends DbtYamlCreateService
                     'sources' => [
                         [
                             'name' => $bucket,
-                            'database' => '{{ env_var("DBT_KBC_PROD_DATABASE") }}',
-                            'schema' => $bucket,
+                            'database' => sprintf(
+                                '{{ env_var("DBT_KBC_PROD%s_DATABASE") }}',
+                                isset($tables['projectId']) ? ('_' . $tables['projectId']) : ''
+                            ),                            'schema' => $bucket,
                             'loaded_at_field' => '_timestamp',
-                            'tables' => array_map($this->formatTableSources(), $tables),
+                            'tables' => array_map($this->formatTableSources(), $tables['tables']),
                         ],
                     ],
                 ], 8)
