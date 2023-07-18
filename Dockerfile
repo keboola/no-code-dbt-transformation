@@ -1,4 +1,4 @@
-FROM php:8.1-cli
+FROM php:8.1-cli-buster
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG DEBIAN_FRONTEND=noninteractive
@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y \
         unixodbc \
         unixodbc-dev \
         libpq-dev \
+        libffi-dev \
         debsig-verify \
         python3 \
         python3-pip \
