@@ -14,22 +14,59 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 class ConfigTest extends TestCase
 {
     /**
-     * @param array<string, mixed> $configData
+     * @param array{
+     *          parameters: array{
+     *              tableName?: string,
+     *              bucketId?: string,
+     *              models: list<array{
+     *                  code: string
+     *              }>,
+     *              authorization?: array{
+     *                  host: string,
+     *                  warehouse: string,
+     *                  database: string,
+     *                  schema: string,
+     *                  user: string,
+     *                  "#password": string,
+     *                  region?: string
+     *              }
+     *          }
+     *      } $configData
      * @dataProvider validConfigsData
      */
     public function testValidConfig(array $configData): void
     {
         $config = new Config($configData, new ConfigDefinition());
+        unset($configData['parameters']['authorization']['region']); // ignored in config definition
         $this->assertEquals($configData, $config->getData());
     }
 
     /**
-     * @param array<string, mixed> $configData
+     * @param  array{
+     *          parameters: array{
+     *              tableName?: string,
+     *              bucketId?: string,
+     *              returnAllResults: bool,
+     *              models: list<array{
+     *                  code: string
+     *              }>,
+     *              authorization: array{
+     *                  host: string,
+     *                  warehouse: string,
+     *                  database: string,
+     *                  schema: string,
+     *                  user: string,
+     *                  "#password": string,
+     *                  region?: string
+     *              }
+     *          }
+     *     } $configData
      * @dataProvider validActionConfigsData
      */
     public function testValidActionConfig(array $configData): void
     {
         $config = new Config($configData, new ActionConfigDefinition());
+        unset($configData['parameters']['authorization']['region']); // ignored in config definition
         $this->assertEquals($configData, $config->getData());
     }
 
@@ -48,7 +85,26 @@ class ConfigTest extends TestCase
     }
 
     /**
-     * @return Generator<string, array<string, mixed>>
+     * @return Generator<string, array{
+     *     configData: array{
+     *         parameters: array{
+     *             tableName?: string,
+     *             bucketId?: string,
+     *             models: list<array{
+     *                 code: string
+     *             }>,
+     *             authorization?: array{
+     *                 host: string,
+     *                 warehouse: string,
+     *                 database: string,
+     *                 schema: string,
+     *                 user: string,
+     *                 "#password": string,
+     *                 region?: string
+     *             }
+     *         }
+     *     }
+     * }>
      */
     public function validConfigsData(): Generator
     {
@@ -92,10 +148,50 @@ class ConfigTest extends TestCase
                 ],
             ],
         ];
+
+        yield 'config with region' => [
+            'configData' => [
+                'parameters' => [
+                    'models' => [
+                        ['code' => 'SELECT * FROM table1;'],
+                        ['code' => 'SELECT * FROM table2;'],
+                    ],
+                    'authorization' => [
+                        'host' => 'kebooladev.snowflake.com',
+                        'warehouse' => 'KEBOOLA_PROD',
+                        'region' => 'US',
+                        'database' => 'KEBOOLA_PROD',
+                        'schema' => 'KEBOOLA_PROD',
+                        'user' => 'KEBOOLA_PROD_1111',
+                        '#password' => 'password',
+                    ],
+                ],
+            ],
+        ];
     }
 
     /**
-     * @return Generator<string, array<string, mixed>>
+     * @return Generator<string, array{
+     *     configData: array{
+     *         parameters: array{
+     *             tableName?: string,
+     *             bucketId?: string,
+     *             returnAllResults: bool,
+     *             models: list<array{
+     *                 code: string
+     *             }>,
+     *             authorization: array{
+     *                 host: string,
+     *                 warehouse: string,
+     *                 database: string,
+     *                 schema: string,
+     *                 user: string,
+     *                 "#password": string,
+     *                 region?: string
+     *             }
+     *         }
+     *     }
+     * }>
      */
     public function validActionConfigsData(): Generator
     {
@@ -150,6 +246,27 @@ class ConfigTest extends TestCase
                     'authorization' => [
                         'host' => 'kebooladev.snowflake.com',
                         'warehouse' => 'KEBOOLA_PROD',
+                        'database' => 'KEBOOLA_PROD',
+                        'schema' => 'KEBOOLA_PROD',
+                        'user' => 'KEBOOLA_PROD_1111',
+                        '#password' => 'password',
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'config with region' => [
+            'configData' => [
+                'parameters' => [
+                    'returnAllResults' => false,
+                    'models' => [
+                        ['code' => 'SELECT * FROM table1;'],
+                        ['code' => 'SELECT * FROM table2;'],
+                    ],
+                    'authorization' => [
+                        'host' => 'kebooladev.snowflake.com',
+                        'warehouse' => 'KEBOOLA_PROD',
+                        'region' => 'US',
                         'database' => 'KEBOOLA_PROD',
                         'schema' => 'KEBOOLA_PROD',
                         'user' => 'KEBOOLA_PROD_1111',

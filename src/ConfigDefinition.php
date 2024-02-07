@@ -33,6 +33,7 @@ class ConfigDefinition extends BaseConfigDefinition
                 ->end()
             ->end()
                 ->arrayNode('authorization')
+                    ->ignoreExtraKeys()
                     ->children()
                         ->scalarNode('host')->end()
                         ->scalarNode('warehouse')->end()

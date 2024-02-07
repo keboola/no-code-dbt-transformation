@@ -34,6 +34,7 @@ class ActionConfigDefinition extends BaseConfigDefinition
                 ->end()
             ->end()
                 ->arrayNode('authorization')
+                    ->ignoreExtraKeys()
                     ->children()
                         ->scalarNode('host')->isRequired()->cannotBeEmpty()->end()
                         ->scalarNode('warehouse')->isRequired()->cannotBeEmpty()->end()
