@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace NoCodeDbtTransformation;
 
 use Keboola\Component\BaseComponent;
+use Keboola\Component\Manifest\ManifestManager;
 use Keboola\SnowflakeDbAdapter\Connection;
 use Keboola\StorageApi\Client;
 use NoCodeDbtTransformation\DbtYamlCreateService\DbtProfilesYamlCreateService;
 use NoCodeDbtTransformation\DbtYamlCreateService\DbtSourceYamlCreateService;
+use NoCodeDbtTransformation\FileDumper\OutputManifest\DbtManifestParser;
+use NoCodeDbtTransformation\FileDumper\OutputManifest\OutputManifestInterface;
+use NoCodeDbtTransformation\FileDumper\OutputManifest\OutputManifestSnowflake;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Yaml;
 
 class Component extends BaseComponent
 {
@@ -18,7 +23,7 @@ class Component extends BaseComponent
     private const ACTION_PREVIEW = 'preview';
     private const STRING_MAX_LENGTH = 16000;
     private const PREVIEW_ROWS_LIMIT = 1000;
-    private const MODEL_LAST = 'model_last';
+    public const MODEL_LAST = 'model_last';
 
     private DbtSourceYamlCreateService $createSourceFileService;
     private DbtProfilesYamlCreateService $createProfilesFileService;
@@ -39,6 +44,7 @@ class Component extends BaseComponent
     protected function run(): void
     {
         $this->doTransformation();
+        $this->getOutputManifest($this->getConfig()->getAuthorization()['workspace'])->dump();
     }
 
     /**
@@ -254,5 +260,34 @@ class Component extends BaseComponent
         });
 
         return ['columns' => $columns, 'rows' => $rows];
+    }
+
+    /**
+     * @param array<string, string> $workspaceCredentials
+     * @throws \Keboola\SnowflakeDbAdapter\Exception\SnowflakeDbAdapterException
+     */
+    public function getOutputManifest(array $workspaceCredentials): OutputManifestInterface
+    {
+        $manifestManager = new ManifestManager($this->getDataDir());
+        $manifestConverter = new DbtManifestParser($this->projectPath);
+
+        /** @var array<string, array<string, bool>> $dbtProjectYaml */
+        $dbtProjectYaml = Yaml::parseFile(sprintf('%s/dbt_project.yml', $this->projectPath));
+        $quoteIdentifier = $dbtProjectYaml['quoting']['identifier'] ?? false;
+
+        $connectionConfig = array_intersect_key(
+            $workspaceCredentials,
+            array_flip(['host', 'warehouse', 'database', 'user', 'password']),
+        );
+        $connection = new Connection($connectionConfig);
+
+        return new OutputManifestSnowflake(
+            $workspaceCredentials,
+            $connection,
+            $manifestManager,
+            $manifestConverter,
+            $this->getLogger(),
+            $quoteIdentifier,
+        );
     }
 }
