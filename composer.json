@@ -8,6 +8,7 @@
         "keboola/db-adapter-snowflake": "^1.1",
         "keboola/php-component": "^9.0",
         "keboola/storage-api-client": "^13.4",
+        "keboola/table-backend-utils": "^2.7",
         "symfony/filesystem": "^5.4",
         "symfony/process": "^5.4",
         "symfony/yaml": "^6.1"
