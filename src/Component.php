@@ -97,7 +97,7 @@ class Component extends BaseComponent
 
         $this->createSourceFileService->dumpYaml(
             $this->projectPath,
-            $tablesData
+            $tablesData,
         );
         $this->createProfilesFileService->dumpYaml($this->projectPath, $projectIds);
 
@@ -177,7 +177,7 @@ class Component extends BaseComponent
             $model = str_replace('%model%', sprintf('model%d', $key), $model);
             $this->filesystem->dumpFile(
                 sprintf('%s/models/model%s.sql', $this->projectPath, $last ? '_last' : $key + 1),
-                $limit ? sprintf('%s LIMIT %d', $model, self::PREVIEW_ROWS_LIMIT) : $model
+                $limit ? sprintf('%s LIMIT %d', $model, self::PREVIEW_ROWS_LIMIT) : $model,
             );
         }
 
@@ -229,8 +229,8 @@ class Component extends BaseComponent
                     $config->getBucketId(),
                     $config->getTableName(),
                     $config->getBucketId(),
-                    $config->getTableName()
-                )
+                    $config->getTableName(),
+                ),
             );
         }
 
@@ -252,7 +252,7 @@ class Component extends BaseComponent
         $sql = sprintf(
             'SELECT * FROM "%s"."%s";',
             $workspace['schema'],
-            $modelName
+            $modelName,
         );
 
         $connection->fetch($sql, [], function ($row) use (&$rows): void {
