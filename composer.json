@@ -3,7 +3,7 @@
     "description": "MyComponent description",
     "license": "MIT",
     "require": {
-        "php": "^8.1",
+        "php": "^8.3",
         "ext-odbc": "*",
         "keboola/db-adapter-snowflake": "^1.1",
         "keboola/php-component": "^9.0",

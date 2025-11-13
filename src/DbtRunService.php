@@ -74,7 +74,11 @@ class DbtRunService
         preg_match_all('~\{(?:[^{}]|(?R))*}~', $output, $messages);
 
         $errors = [];
-        foreach (reset($messages) as $messageJson) {
+        $firstMatch = reset($messages);
+        if ($firstMatch === false) {
+            return $output;
+        }
+        foreach ($firstMatch as $messageJson) {
             $message = json_decode($messageJson, true);
             if ($message === null) {
                 return $output;

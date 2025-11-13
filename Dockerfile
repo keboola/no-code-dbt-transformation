@@ -1,12 +1,12 @@
-FROM php:8.1-cli-buster
+FROM php:8.3-cli-trixie
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG DEBIAN_FRONTEND=noninteractive
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_PROCESS_TIMEOUT 3600
 
-ARG SNOWFLAKE_ODBC_VERSION=2.25.9
-ARG SNOWFLAKE_GPG_KEY=630D9F3CAB551AF3
+ARG SNOWFLAKE_ODBC_VERSION=3.10.0
+ARG SNOWFLAKE_GPG_KEY=2A3149C82551A34A
 
 WORKDIR /code/
 
@@ -25,8 +25,8 @@ RUN apt-get update && apt-get install -y \
         debsig-verify \
         python3 \
         python3-pip \
-    && pip3 install --upgrade pip cffi \
-    && pip3 install dbt-snowflake \
+    && pip3 install --break-system-packages cffi \
+    && pip3 install --break-system-packages dbt-snowflake \
 	&& rm -r /var/lib/apt/lists/* \
 	&& sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
 	&& locale-gen \
@@ -57,9 +57,11 @@ ADD docker/snowflake/generic.pol /etc/debsig/policies/$SNOWFLAKE_GPG_KEY/generic
 ADD docker/snowflake/simba.snowflake.ini /usr/lib/snowflake/odbc/lib/simba.snowflake.ini
 
 # snowflake - charset settings
-RUN mkdir -p ~/.gnupg \
+RUN mkdir -p /etc/gnupg \
+    && echo "allow-weak-digest-algos" >> /etc/gnupg/gpg.conf \
+    && mkdir -p ~/.gnupg \
     && chmod 700 ~/.gnupg \
-    && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf \
+    && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf\
     && mkdir /usr/share/debsig/keyrings/$SNOWFLAKE_GPG_KEY \
     && if ! gpg --keyserver hkp://keys.gnupg.net --recv-keys $SNOWFLAKE_GPG_KEY; then \
         gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys $SNOWFLAKE_GPG_KEY;  \
@@ -70,6 +72,19 @@ RUN mkdir -p ~/.gnupg \
     && gpg --batch --delete-key --yes $SNOWFLAKE_GPG_KEY \
     && dpkg -i /tmp/snowflake-odbc.deb \
     && rm /tmp/snowflake-odbc.deb
+
+RUN cat <<EOF > /etc/odbcinst.ini
+[ODBC Drivers]
+SnowflakeDSIIDriver=Installed
+
+[SnowflakeDSIIDriver]
+APILevel=1
+ConnectFunctions=YYY
+Description=Snowflake DSII
+Driver=/usr/lib/snowflake/odbc/lib/libSnowflake.so
+DriverODBCVer=${SNOWFLAKE_ODBC_VERSION}
+SQLLevel=1
+EOF
 
 ## Composer - deps always cached unless changed
 # First copy only composer files

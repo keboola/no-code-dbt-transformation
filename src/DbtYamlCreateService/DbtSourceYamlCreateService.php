@@ -27,13 +27,13 @@ class DbtSourceYamlCreateService extends DbtYamlCreateService
                             'name' => $bucket,
                             'database' => sprintf(
                                 '{{ env_var("DBT_KBC_PROD%s_DATABASE") }}',
-                                isset($tables['projectId']) ? ('_' . $tables['projectId']) : ''
+                                isset($tables['projectId']) ? ('_' . $tables['projectId']) : '',
                             ),                            'schema' => $bucket,
                             'loaded_at_field' => '_timestamp',
                             'tables' => array_map($this->formatTableSources(), $tables['tables']),
                         ],
                     ],
-                ], 8)
+                ], 8),
             );
         }
     }
@@ -58,7 +58,7 @@ class DbtSourceYamlCreateService extends DbtYamlCreateService
                             'tests' => ['unique', 'not_null'],
                         ];
                     },
-                    $table['primaryKey']
+                    $table['primaryKey'],
                 );
             }
 

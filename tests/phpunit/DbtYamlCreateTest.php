@@ -29,7 +29,7 @@ class DbtYamlCreateTest extends TestCase
 
         self::assertFileEquals(
             sprintf('%s/expectedProfiles.yml', $this->providerDataDir),
-            sprintf('%s/profiles.yml', $this->dataDir)
+            sprintf('%s/profiles.yml', $this->dataDir),
         );
     }
 
@@ -50,13 +50,13 @@ class DbtYamlCreateTest extends TestCase
 
         $service->dumpYaml(
             $this->dataDir,
-            $tablesData
+            $tablesData,
         );
 
         foreach ($tablesData as $bucket => $tables) {
             self::assertFileEquals(
                 sprintf('%s/models/_sources/%s.yml', $this->providerDataDir, $bucket),
-                sprintf('%s/models/_sources/%s.yml', $this->dataDir, $bucket)
+                sprintf('%s/models/_sources/%s.yml', $this->dataDir, $bucket),
             );
         }
     }
