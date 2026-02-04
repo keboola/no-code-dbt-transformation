@@ -1,8 +1,8 @@
-version: '3'
 services:
   dev: &dev
     build: .
     image: keboola/no-code-dbt-transformation
+    working_dir: /code
     volumes:
       - ./:/code
       - ./data:/data
@@ -11,3 +11,6 @@ services:
     build:
       context: ./docker/xdebug
     image: keboola/no-code-dbt-transformation-xdebug
+    env_file: .env
+    environment:
+      PHP_IDE_CONFIG: serverName=docker
