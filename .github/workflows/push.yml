@@ -19,6 +19,16 @@ env:
     SNOWFLAKE_DATABASE: "SAPI_9342"
     SNOWFLAKE_SCHEMA: "WORKSPACE_1291638618"
     SNOWFLAKE_WAREHOUSE: "KEBOOLA_PROD_SMALL"
+    # ziPJCsm88MZRfNBmQhvAuQdkBgEUaJ4c
+
+  # Snowflake Legacy Credentials
+    SNOWFLAKE_LEGACY_HOST: "keboola.snowflakecomputing.com"
+    SNOWFLAKE_LEGACY_PORT: 443
+    SNOWFLAKE_LEGACY_USER: "SAPI_WORKSPACE_1291638618"
+    SNOWFLAKE_LEGACY_PASSWORD: '${{ secrets.SNOWFLAKE_LEGACY_PASSWORD }}'
+    SNOWFLAKE_LEGACY_DATABASE: "SAPI_9342"
+    SNOWFLAKE_LEGACY_SCHEMA: "WORKSPACE_1291638618"
+    SNOWFLAKE_LEGACY_WAREHOUSE: "KEBOOLA_PROD_SMALL"
 
     KBC_URL: "https://connection.keboola.com"
     KBC_TOKEN: '${{ secrets.KBC_TOKEN }}'
@@ -95,6 +105,13 @@ jobs:
                     -e SNOWFLAKE_SCHEMA \
                     -e SNOWFLAKE_USER \
                     -e SNOWFLAKE_PASSWORD \
+                    -e SNOWFLAKE_LEGACY_HOST \
+                    -e SNOWFLAKE_LEGACY_PORT \
+                    -e SNOWFLAKE_LEGACY_WAREHOUSE \
+                    -e SNOWFLAKE_LEGACY_DATABASE \
+                    -e SNOWFLAKE_LEGACY_SCHEMA \
+                    -e SNOWFLAKE_LEGACY_USER \
+                    -e SNOWFLAKE_LEGACY_PASSWORD \
                     -e KBC_URL \
                     -e KBC_TOKEN \
                     ${{env.APP_IMAGE}} composer ci

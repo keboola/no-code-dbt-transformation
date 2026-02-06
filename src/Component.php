@@ -122,7 +122,13 @@ class Component extends BaseComponent
         putenv(sprintf('DBT_KBC_PROD_ACCOUNT=%s', $account));
         putenv(sprintf('DBT_KBC_PROD_TYPE=%s', 'snowflake'));
         putenv(sprintf('DBT_KBC_PROD_USER=%s', $workspace['user']));
-        putenv(sprintf('DBT_KBC_PROD_PASSWORD=%s', $workspace['password']));
+
+        $privateKey = $workspace['privateKey'] ?? $workspace['#privateKey'] ?? null;
+        if ($privateKey !== null) {
+            putenv(sprintf('DBT_KBC_PROD_PRIVATE_KEY=%s', $privateKey));
+        } else {
+            putenv(sprintf('DBT_KBC_PROD_PASSWORD=%s', $workspace['password'] ?? $workspace['#password']));
+        }
     }
 
     public function getConfig(): Config
@@ -277,7 +283,7 @@ class Component extends BaseComponent
 
         $connectionConfig = array_intersect_key(
             $workspaceCredentials,
-            array_flip(['host', 'warehouse', 'database', 'user', 'password']),
+            array_flip(['host', 'warehouse', 'database', 'user', 'password', 'privateKey']),
         );
         $connection = new Connection($connectionConfig);
 
