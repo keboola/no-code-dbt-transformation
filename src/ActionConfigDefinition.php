@@ -35,13 +35,22 @@ class ActionConfigDefinition extends BaseConfigDefinition
             ->end()
                 ->arrayNode('authorization')
                     ->ignoreExtraKeys()
+                    ->validate()
+                        ->ifTrue(function (array $v): bool {
+                            $hasPassword = !empty($v['#password']);
+                            $hasPrivateKey = !empty($v['#privateKey']);
+                            return !$hasPassword && !$hasPrivateKey;
+                        })
+                        ->thenInvalid('You must provide either "#password" OR "#privateKey"')
+                    ->end()
                     ->children()
                         ->scalarNode('host')->isRequired()->cannotBeEmpty()->end()
                         ->scalarNode('warehouse')->isRequired()->cannotBeEmpty()->end()
                         ->scalarNode('database')->isRequired()->cannotBeEmpty()->end()
                         ->scalarNode('schema')->isRequired()->cannotBeEmpty()->end()
                         ->scalarNode('user')->isRequired()->cannotBeEmpty()->end()
-                        ->scalarNode('#password')->isRequired()->cannotBeEmpty()->end()
+                        ->scalarNode('#password')->end()
+                        ->scalarNode('#privateKey')->end()
                     ->end()
                 ->end()
             ->end();

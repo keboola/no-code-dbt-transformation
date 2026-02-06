@@ -41,6 +41,7 @@ class ConfigDefinition extends BaseConfigDefinition
                         ->scalarNode('schema')->end()
                         ->scalarNode('user')->end()
                         ->scalarNode('#password')->end()
+                        ->scalarNode('#privateKey')->end()
                     ->end()
                 ->end()
             ->end();

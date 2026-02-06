@@ -35,14 +35,21 @@ class DbtProfilesYamlCreateService extends DbtYamlCreateService
      */
     protected function getOutputDefinition(string $configurationName): array
     {
-        return [
+        $output = [
             'type' => sprintf('{{ env_var("DBT_%s_TYPE") }}', $configurationName),
             'user' => sprintf('{{ env_var("DBT_%s_USER") }}', $configurationName),
-            'password' => sprintf('{{ env_var("DBT_%s_PASSWORD") }}', $configurationName),
             'schema' => sprintf('{{ env_var("DBT_%s_SCHEMA") }}', $configurationName),
             'warehouse' => sprintf('{{ env_var("DBT_%s_WAREHOUSE") }}', $configurationName),
             'database' => sprintf('{{ env_var("DBT_%s_DATABASE") }}', $configurationName),
             'account' => sprintf('{{ env_var("DBT_%s_ACCOUNT") }}', $configurationName),
         ];
+
+        if (getenv('DBT_KBC_PROD_PRIVATE_KEY') !== false) {
+            $output['private_key'] = sprintf('{{ env_var("DBT_%s_PRIVATE_KEY") }}', $configurationName);
+        } else {
+            $output['password'] = sprintf('{{ env_var("DBT_%s_PASSWORD") }}', $configurationName);
+        }
+
+        return $output;
     }
 }

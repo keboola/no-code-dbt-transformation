@@ -42,8 +42,14 @@ class Config extends BaseConfig
     public function getCredentials(): array
     {
         $credentials = $this->getArrayValue(['parameters', 'authorization']);
-        $credentials['password'] = $credentials['#password'];
-        unset($credentials['#password']);
+
+        if (!empty($credentials['#privateKey'])) {
+            $credentials['privateKey'] = $credentials['#privateKey'];
+            unset($credentials['#privateKey'], $credentials['#password']);
+        } else {
+            $credentials['password'] = $credentials['#password'];
+            unset($credentials['#password'], $credentials['#privateKey']);
+        }
 
         return $credentials;
     }
