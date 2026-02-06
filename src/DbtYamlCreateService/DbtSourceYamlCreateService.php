@@ -29,7 +29,9 @@ class DbtSourceYamlCreateService extends DbtYamlCreateService
                                 '{{ env_var("DBT_KBC_PROD%s_DATABASE") }}',
                                 isset($tables['projectId']) ? ('_' . $tables['projectId']) : '',
                             ),                            'schema' => $bucket,
-                            'loaded_at_field' => '_timestamp',
+                            'config' => [
+                                'loaded_at_field' => '_timestamp',
+                            ],
                             'tables' => array_map($this->formatTableSources(), $tables['tables']),
                         ],
                     ],

@@ -4,7 +4,8 @@ sources:
         name: bucket-1
         database: '{{ env_var("DBT_KBC_PROD_DATABASE") }}'
         schema: bucket-1
-        loaded_at_field: _timestamp
+        config:
+            loaded_at_field: _timestamp
         tables:
             -
                 name: table1
